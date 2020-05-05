@@ -52,6 +52,15 @@ def index(request):
             pass
 
     paginator = Paginator(videos, per_page=25)
+    
+    collections = permission_policy.collections_user_has_any_permission_for(
+        request.user, ['add', 'change']
+    )
+    if len(collections) < 2:
+        collections = None
+    else:
+        collections = Collection.order_for_display(collections)
+        
     page = paginator.get_page(request.GET.get('p'))
 
     # Create response
@@ -71,6 +80,7 @@ def index(request):
             'search_form': form,
             'popular_tags': popular_tags_for_model(Video),
             'current_collection': current_collection,
+            'collections': collections,
         })
         return response
 
