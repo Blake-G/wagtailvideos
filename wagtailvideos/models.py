@@ -188,12 +188,14 @@ class AbstractVideo(CollectionMember, index.Indexed, models.Model):
         except Transcode.DoesNotExist:
             return self.do_transcode(media_format)
 
-    def video_tag(self, attrs=None):
+    def video_tag(self, poster=None, attrs=None):
         if attrs is None:
             attrs = {}
         else:
             attrs = attrs.copy()
-        if self.thumbnail:
+        if 'poster' in attrs:
+            attrs['poster'] = poster.file.url
+        elif self.thumbnail and 'poster' not in attrs:
             attrs['poster'] = self.thumbnail.url
 
         transcodes = self.transcodes.exclude(processing=True).filter(error_message__exact='')

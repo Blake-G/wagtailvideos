@@ -18,7 +18,9 @@ Install using pypi
 
 .. code:: bash
 
-    pip install wagtailvideos
+    pip install wagtailvideos (the original package)
+    or
+    pip install git+https://github.com/emg36/wagtailvideos.git (this package fork)
 
 
 Using
@@ -42,10 +44,12 @@ Implement as a ``ForeignKey`` relation, same as wagtailimages.
 
     class HomePage(Page):
         body = RichtextField()
-        header_video = models.ForeignKey('wagtailvideos.Video',
-                                         related_name='+',
-                                         null=True,
-                                         on_delete=models.SET_NULL)
+        header_video = models.ForeignKey(
+            'wagtailvideos.Video',
+            related_name='+',
+            null=True,
+            on_delete=models.SET_NULL,
+            )
 
         content_panels = Page.content_panels + [
             FieldPanel('body'),
@@ -64,6 +68,43 @@ tag. The original video and all extra transcodes are added as
 
     {% load wagtailvideos_tags %}
     {% video self.header_video autoplay controls width=256 %}
+
+You can specify a poster using a url like e.g. from google or reference your own image.url. 
+This is how I'm currently getting around not being able to use a wagtail image as the thumbnail image
+due to the video and image chooser inception problems. The thumbnail image is still a part of the model
+because you might want to use it as is and it's still useful for knowing what the video is.
+
+So my model might look something like 
+
+.. code:: python
+    class HomePage(Page):
+        body = RichtextField()
+        header_video_poster = models.ForeignKey(
+            'wagtailimages.Image',
+            related_name='+',
+            blank=True,
+            null=True,
+            on_delete=models.SET_NULL
+            
+        header_video = models.ForeignKey(
+            'wagtailvideos.Video',
+            related_name='+',
+            blank=True,
+            null=True,
+            on_delete=models.SET_NULL
+            )
+        content_panels = Page.content_panels + [
+            FieldPanel('body'),
+            ImageChooserPanel(header_video_poster),
+            VideoChooserPanel('header_video'),
+        ]
+.. code:: django
+    {% load wagtailvideos_tags wagtailimages_tags %}
+    {% image header_video_poster.image fill-400x400 as img %}
+    {% video self.header_video autoplay controls width=256 poster=img.url %}
+    or 
+    {% video self.header_video autoplay controls width=256 poster='http://example.com/some-image.jpg' %}
+
 
 How to transcode using ffmpeg:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
