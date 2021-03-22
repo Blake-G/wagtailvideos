@@ -11,9 +11,9 @@ from wagtailvideos.forms import get_video_form
 from wagtailvideos.models import Video
 from wagtailvideos.permissions import permission_policy
 
-if wagtail.__version__ >= '2.7':
+try:
     from wagtail.admin.auth import PermissionPolicyChecker
-else:
+except:
     from wagtail.admin.utils import PermissionPolicyChecker
 
 permission_checker = PermissionPolicyChecker(permission_policy)

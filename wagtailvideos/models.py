@@ -29,9 +29,9 @@ from wagtail.search.queryset import SearchableQuerySetMixin
 
 from wagtailvideos import ffmpeg
 
-if wagtail.__version__ >= '2.7':
+try:
     from wagtail.admin.models import get_object_usage
-else:
+except:
     from wagtail.admin.utils import get_object_usage
 
 logger = logging.getLogger(__name__)
